@@ -1,0 +1,37 @@
+import React, { useEffect, useState } from 'react';
+     import io from 'socket.io-client';
+
+     const socket = io('http://localhost:3000'); // Connect to the backend
+
+     function App() {
+       const [alerts, setAlerts] = useState([]);
+
+       useEffect(() => {
+         socket.on('alert', (message) => {
+           setAlerts((prevAlerts) => [...prevAlerts, message]);
+         });
+
+         return () => {
+           socket.off('alert');
+         };
+       }, []);
+
+       const sendAlert = () => {
+         const message = `New alert at ${new Date().toLocaleTimeString()}`;
+         socket.emit('alert', message); // Send an alert to the server
+       };
+
+       return (
+         <div>
+           <h1>Real-time Alerts</h1>
+           <button onClick={sendAlert}>Send Alert</button>
+           <ul>
+             {alerts.map((alert, index) => (
+               <li key={index}>{alert}</li>
+             ))}
+           </ul>
+         </div>
+       );
+     }
+
+     export default App;
